@@ -1,0 +1,215 @@
+{  
+   "name":"Cisco WLC",
+   "description":"Content pack for Cisco WLC. Will spawn input on UDP port 10514",
+   "category":"Wireless",
+   "inputs":[  
+      {  
+         "title":"Cisco WLC",
+         "configuration":{  
+            "override_source":null,
+            "recv_buffer_size":262144,
+            "bind_address":"0.0.0.0",
+            "port":10514
+         },
+         "static_fields":{  
+
+         },
+         "type":"org.graylog2.inputs.raw.udp.RawUDPInput",
+         "global":true,
+         "extractors":[  
+            {  
+               "title":"Facility",
+               "type":"REGEX",
+               "cursor_strategy":"COPY",
+               "target_field":"facility",
+               "source_field":"message",
+               "configuration":{  
+                  "regex_value":"^<(\\d+)>"
+               },
+               "converters":[  
+                  {  
+                     "type":"SYSLOG_PRI_FACILITY",
+                     "configuration":{  
+
+                     }
+                  }
+               ],
+               "condition_type":"NONE",
+               "condition_value":"",
+               "order":0
+            },
+            {  
+               "title":"Task",
+               "type":"REGEX",
+               "cursor_strategy":"COPY",
+               "target_field":"task",
+               "source_field":"message",
+               "configuration":{  
+                  "regex_value":"\\*(.+?):"
+               },
+               "converters":[  
+
+               ],
+               "condition_type":"NONE",
+               "condition_value":"",
+               "order":2
+            },
+            {  
+               "title":"Local facility",
+               "type":"REGEX",
+               "cursor_strategy":"COPY",
+               "target_field":"local_facility",
+               "source_field":"message",
+               "configuration":{  
+                  "regex_value":"%(.+?)-"
+               },
+               "converters":[  
+
+               ],
+               "condition_type":"NONE",
+               "condition_value":"",
+               "order":3
+            },
+            {  
+               "title":"Local severity",
+               "type":"REGEX",
+               "cursor_strategy":"COPY",
+               "target_field":"local_severity",
+               "source_field":"message",
+               "configuration":{  
+                  "regex_value":"%.+?-(\\d*)-"
+               },
+               "converters":[  
+
+               ],
+               "condition_type":"NONE",
+               "condition_value":"",
+               "order":4
+            },
+            {  
+               "title":"Mnemonic",
+               "type":"REGEX",
+               "cursor_strategy":"COPY",
+               "target_field":"mnemonic",
+               "source_field":"message",
+               "configuration":{  
+                  "regex_value":"%.+?-\\d*-(.+?):"
+               },
+               "converters":[  
+
+               ],
+               "condition_type":"NONE",
+               "condition_value":"",
+               "order":5
+            },
+            {  
+               "title":"Source",
+               "type":"REGEX",
+               "cursor_strategy":"COPY",
+               "target_field":"source",
+               "source_field":"message",
+               "configuration":{  
+                  "regex_value":">(.+?):"
+               },
+               "converters":[  
+
+               ],
+               "condition_type":"NONE",
+               "condition_value":"",
+               "order":1
+            },
+            {  
+               "title":"Full Message",
+               "type":"COPY_INPUT",
+               "cursor_strategy":"COPY",
+               "target_field":"full_message",
+               "source_field":"message",
+               "configuration":{  
+
+               },
+               "converters":[  
+
+               ],
+               "condition_type":"NONE",
+               "condition_value":"",
+               "order":6
+            },
+            {  
+               "title":"Message",
+               "type":"REGEX",
+               "cursor_strategy":"COPY",
+               "target_field":"message",
+               "source_field":"message",
+               "configuration":{  
+                  "regex_value":"%.+?-\\d*-.+?:\\s(\\[.*)"
+               },
+               "converters":[  
+
+               ],
+               "condition_type":"NONE",
+               "condition_value":"",
+               "order":7
+            },
+            {  
+               "title":"Username",
+               "type":"REGEX",
+               "cursor_strategy":"COPY",
+               "target_field":"Username",
+               "source_field":"message",
+               "configuration":{  
+                  "regex_value":"Username entry \\(([^)]+)"
+               },
+               "converters":[  
+
+               ],
+               "condition_type":"NONE",
+               "condition_value":"",
+               "order":0
+            },
+            {  
+               "title":"MAC",
+               "type":"GROK",
+               "cursor_strategy":"COPY",
+               "target_field":"",
+               "source_field":"message",
+               "configuration":{  
+                  "grok_pattern":"%{MAC}"
+               },
+               "converters":[  
+
+               ],
+               "condition_type":"NONE",
+               "condition_value":"",
+               "order":0
+            }
+         ]
+      }
+   ],
+   "streams":[  
+
+   ],
+   "outputs":[  
+
+   ],
+   "dashboards":[  
+
+   ],
+   "grok_patterns":[  
+      {  
+         "name":"COMMONMAC",
+         "pattern":"(?:(?:[A-Fa-f0-9]{2}:){5}[A-Fa-f0-9]{2})"
+      },
+      {  
+         "name":"CISCOMAC",
+         "pattern":"(?:(?:[A-Fa-f0-9]{4}\\.){2}[A-Fa-f0-9]{4})"
+      },
+      {  
+         "name":"MAC",
+         "pattern":"(?:%{CISCOMAC}|%{WINDOWSMAC}|%{COMMONMAC})"
+      },
+      {  
+         "name":"WINDOWSMAC",
+         "pattern":"(?:(?:[A-Fa-f0-9]{2}-){5}[A-Fa-f0-9]{2})"
+      }
+   ]
+}
